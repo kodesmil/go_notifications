@@ -16,7 +16,7 @@ RUN go mod download
 
 # Copy the code into the container
 COPY ./server .
-COPY ./proto .
+COPY ./proto ./proto
 
 # Build the application
 RUN go build -o main .
