@@ -3,8 +3,10 @@ module notifications
 go 1.14
 
 require (
+	firebase.google.com/go v3.12.0+incompatible // indirect
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
 	github.com/golang/protobuf v1.3.5
+	github.com/googleapis/gax-go v1.0.3 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.2.2 // indirect
 	github.com/pelletier/go-toml v1.6.0 // indirect
@@ -15,7 +17,9 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.6.2
 	go.mongodb.org/mongo-driver v1.3.1
+	go.opencensus.io v0.22.3 // indirect
 	golang.org/x/sys v0.0.0-20200323222414-85ca7c5b95cd // indirect
+	google.golang.org/api v0.20.0 // indirect
 	google.golang.org/grpc v1.28.0
 	gopkg.in/ini.v1 v1.55.0 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect

@@ -17,6 +17,8 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"firebase.google.com/go"
+	"firebase.google.com/go/auth"
 )
 
 const port = ":50051"
@@ -34,10 +36,28 @@ type NotificationItem struct {
 var db *mongo.Client
 var notificationsdb *mongo.Collection
 var mongoCtx context.Context
+var firebaseApp firebase.App
+var firebaseClient auth.Client
+
+
+
 
 // CREATE
 
 func (s *NotificationServiceServer) NotificationCreate(ctx context.Context, request *pb.NotificationCreateRequest) (*pb.NotificationCreateResponse, error) {
+
+	idToken := request.GetIdtoken()
+
+	token := idToken.GetToken()
+
+
+	verifiedToken, err := firebaseClient.VerifyIDToken(ctx, token)
+	if err != nil {
+		log.Fatalf("error verifying ID token: %v\n", err)
+	}
+
+	fmt.Print(verifiedToken)
+
 	notification := request.GetNotification()
 
 	// convert proto timestamp to time.Time timestamp
@@ -246,6 +266,21 @@ func main() {
 	srv := &NotificationServiceServer{}
 
 	pb.RegisterNotificationServiceServer(s, srv)
+
+
+	// firebase auth stuff
+
+	firebaseApp, err := firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("error initializing Firebase app: %v\n", err)
+	}
+
+	firebaseClient, err := firebaseApp.Auth(context.Background())
+	if err != nil {
+		log.Fatalf("error getting Auth client: %v\n", err)
+	}
+
+	_ = firebaseClient // werks
 
 
 	// MONGO STUFF

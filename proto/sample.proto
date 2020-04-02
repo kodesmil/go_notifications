@@ -6,6 +6,10 @@ import "google/protobuf/timestamp.proto";
 
 // MODEL
 
+message IDtoken {
+    string token = 1;
+}
+
 message Notification {
     string id = 1;
     string title = 2;
@@ -19,6 +23,7 @@ message Notification {
 
 message NotificationCreateRequest {
      Notification notification = 1; // id empty
+     IDtoken idtoken = 2;
 }
 
 message NotificationCreateResponse {
