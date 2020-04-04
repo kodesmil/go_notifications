@@ -2,17 +2,20 @@ package cmd
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
 	"log"
 	"os"
 	"time"
+
+	"github.com/mitchellh/go-homedir"
 
 	pb "notifications/proto"
 	//homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 var cfgFile string
@@ -60,9 +63,11 @@ func init() {
 	// Establish context to timeout if server does not respond
 	requestCtx, _ = context.WithTimeout(context.Background(), 10*time.Second)
 	// Establish insecure grpc options (no TLS)
-	requestOpts = grpc.WithInsecure()
+	config := &tls.Config{
+		InsecureSkipVerify: true,
+	}
 	// Dial the server, returns a client connection
-	conn, err := grpc.Dial("localhost:50051", requestOpts)
+	conn, err := grpc.Dial("notifications.dev.api.kodesmil.com:443", grpc.WithTransportCredentials(credentials.NewTLS(config)))
 	if err != nil {
 		log.Fatalf("Unable to establish client connection to localhost:50051: %v", err)
 	}
