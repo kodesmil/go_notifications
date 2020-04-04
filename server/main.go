@@ -76,7 +76,6 @@ func (s *NotificationServiceServer) NotificationCreate(ctx context.Context, requ
 // READ
 
 func (s *NotificationServiceServer) NotificationRead(ctx context.Context, request *pb.NotificationReadRequest) (*pb.NotificationReadResponse, error) {
-	fmt.Sprintf("Starting read method")
 	// convert string id (from proto) to mongoDB ObjectId
 	oid, err := primitive.ObjectIDFromHex(request.GetId())
 	if err != nil {
