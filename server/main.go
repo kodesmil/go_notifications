@@ -3,20 +3,22 @@ package main
 import (
 	"context"
 	"fmt"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"log"
 	"net"
 	pb "notifications/proto"
 	"os"
 	"os/signal"
 	"time"
+
 	"github.com/golang/protobuf/ptypes"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/reflection"
+	"google.golang.org/grpc/status"
 )
 
 const port = ":50051"
@@ -24,11 +26,11 @@ const port = ":50051"
 type NotificationServiceServer struct{}
 
 type NotificationItem struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Title    string             `bson:"title"`
-	Content  string             `bson:"content"`
-	UserID	 string             `bson:"user_id"`
-	Time	time.Time			`bson:"time"`
+	ID      primitive.ObjectID `bson:"_id,omitempty"`
+	Title   string             `bson:"title"`
+	Content string             `bson:"content"`
+	UserID  string             `bson:"user_id"`
+	Time    time.Time          `bson:"time"`
 }
 
 var db *mongo.Client
@@ -54,7 +56,6 @@ func (s *NotificationServiceServer) NotificationCreate(ctx context.Context, requ
 		Time:    timestamp,
 	}
 
-
 	// Insert the data into the database
 	// *InsertOneResult contains the oid
 	result, err := notificationsdb.InsertOne(mongoCtx, data)
@@ -75,6 +76,7 @@ func (s *NotificationServiceServer) NotificationCreate(ctx context.Context, requ
 // READ
 
 func (s *NotificationServiceServer) NotificationRead(ctx context.Context, request *pb.NotificationReadRequest) (*pb.NotificationReadResponse, error) {
+	fmt.Sprintf("Starting read method")
 	// convert string id (from proto) to mongoDB ObjectId
 	oid, err := primitive.ObjectIDFromHex(request.GetId())
 	if err != nil {
@@ -94,11 +96,11 @@ func (s *NotificationServiceServer) NotificationRead(ctx context.Context, reques
 	// Cast to ReadBlogRes type
 	response := &pb.NotificationReadResponse{
 		Notification: &pb.Notification{
-			Id:       oid.Hex(),
-			UserId:   data.UserID,
-			Title:    data.Title,
-			Content:  data.Content,
-			Time:	  timestamp,
+			Id:      oid.Hex(),
+			UserId:  data.UserID,
+			Title:   data.Title,
+			Content: data.Content,
+			Time:    timestamp,
 		},
 	}
 	return response, nil
@@ -124,9 +126,9 @@ func (s *NotificationServiceServer) NotificationUpdate(ctx context.Context, requ
 	// Convert the data to be updated into an unordered Bson document
 	update := bson.M{
 		"user_id": notification.GetUserId(),
-		"title":      notification.GetTitle(),
-		"content":    notification.GetContent(),
-		"time":		  notification.GetTime(),
+		"title":   notification.GetTitle(),
+		"content": notification.GetContent(),
+		"time":    notification.GetTime(),
 	}
 
 	// Convert the oid into an unordered bson document to search by id
@@ -153,11 +155,11 @@ func (s *NotificationServiceServer) NotificationUpdate(ctx context.Context, requ
 
 	return &pb.NotificationUpdateResponse{
 		Notification: &pb.Notification{
-			Id:       decoded.ID.Hex(),
-			UserId:   decoded.UserID,
-			Title:    decoded.Title,
-			Content:  decoded.Content,
-			Time:     timestamp,
+			Id:      decoded.ID.Hex(),
+			UserId:  decoded.UserID,
+			Title:   decoded.Title,
+			Content: decoded.Content,
+			Time:    timestamp,
 		},
 	}, nil
 }
@@ -212,11 +214,11 @@ func (s *NotificationServiceServer) NotificationsList(request *pb.NotificationsL
 		// If no error is found send blog over stream
 		stream.Send(&pb.NotificationsListResponse{
 			Notification: &pb.Notification{
-				Id:       data.ID.Hex(),
-				UserId:   data.UserID,
-				Content:  data.Content,
-				Title:    data.Title,
-				Time:     timestamp,
+				Id:      data.ID.Hex(),
+				UserId:  data.UserID,
+				Content: data.Content,
+				Title:   data.Title,
+				Time:    timestamp,
 			},
 		})
 	}
@@ -246,7 +248,7 @@ func main() {
 	srv := &NotificationServiceServer{}
 
 	pb.RegisterNotificationServiceServer(s, srv)
-
+	reflection.Register(s)
 
 	// MONGO STUFF
 
@@ -265,14 +267,12 @@ func main() {
 
 	notificationsdb = db.Database("kodesmil_notifications").Collection("notifications")
 
-
 	go func() {
 		if err := s.Serve(listener); err != nil {
 			log.Fatalf("Failed to serve: %v", err)
 		}
 	}()
 	fmt.Println("Server succesfully started on port :50051")
-
 
 	// STOPPING SERVER
 
