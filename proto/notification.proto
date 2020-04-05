@@ -70,6 +70,6 @@ service NotificationService {
     rpc NotificationRead(NotificationReadRequest) returns (NotificationReadResponse);
     rpc NotificationUpdate(NotificationUpdateRequest) returns (NotificationUpdateResponse);
     rpc NotificationDelete(NotificationDeleteRequest) returns (NotificationDeleteResponse);
-    rpc NotificationsList(NotificationsListRequest) returns (stream NotificationsListResponse);
+    rpc NotificationsList(NotificationsListRequest) returns (stream NotificationsListResponse re);
 
 }
