@@ -195,7 +195,7 @@ func (s *NotificationServiceServer) NotificationsList(request *pb.NotificationsL
 
 	token := idToken.GetToken()
 
-	verifiedToken, err := firebaseClient.VerifyIDToken(ctx, token)
+	verifiedToken, err := firebaseClient.VerifyIDToken(context.Background(), token)
 	if err != nil {
 		log.Fatalf("error verifying ID token: %v\n", err)
 	}
