@@ -200,8 +200,10 @@ func (s *NotificationServiceServer) NotificationsList(request *pb.NotificationsL
 		log.Fatalf("error verifying ID token: %v\n", err)
 	}
 
-	fmt.Print(verifiedToken)
-	fmt.Print("test abc abc")
+	fmt.Println(idToken)
+	fmt.Println(token)
+	fmt.Println(verifiedToken)
+	fmt.Println("test abc abc")
 
 	// Initiate a BlogItem type to write decoded data to
 	data := &NotificationItem{}
@@ -278,8 +280,6 @@ func main() {
 	}
 
 	_ = firebaseClient // werks
-
-	fmt.Println("testtestest")
 
 	// MONGO STUFF
 
