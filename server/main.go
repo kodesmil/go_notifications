@@ -279,7 +279,7 @@ func main() {
 
 	_ = firebaseClient // werks
 
-	fmt.Print("testtestest")
+	fmt.Println("testtestest")
 
 	// MONGO STUFF
 
