@@ -15,6 +15,10 @@ message Notification {
 
 }
 
+message IDtoken {
+    string token = 1;
+}
+
 // CREATE
 
 message NotificationCreateRequest {
@@ -57,7 +61,9 @@ message NotificationDeleteResponse {
 
 // LIST
 
-message NotificationsListRequest {}
+message NotificationsListRequest {
+    IDtoken idtoken = 1;
+}
 
 message NotificationsListResponse {
     Notification notification = 1;

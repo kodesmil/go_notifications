@@ -19,6 +19,8 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/grpc/status"
+	"firebase.google.com/go"
+	"firebase.google.com/go/auth"
 )
 
 const port = ":50051"
@@ -36,6 +38,8 @@ type NotificationItem struct {
 var db *mongo.Client
 var notificationsdb *mongo.Collection
 var mongoCtx context.Context
+var firebaseApp firebase.App
+var firebaseClient auth.Client
 
 // CREATE
 
@@ -187,6 +191,18 @@ func (s *NotificationServiceServer) NotificationDelete(ctx context.Context, requ
 
 func (s *NotificationServiceServer) NotificationsList(request *pb.NotificationsListRequest, stream pb.NotificationService_NotificationsListServer) error {
 
+	idToken := request.GetIdtoken()
+
+	token := idToken.GetToken()
+
+	verifiedToken, err := firebaseClient.VerifyIDToken(ctx, token)
+	if err != nil {
+		log.Fatalf("error verifying ID token: %v\n", err)
+	}
+
+	fmt.Print(verifiedToken)
+	fmt.Print("test abc abc")
+
 	// Initiate a BlogItem type to write decoded data to
 	data := &NotificationItem{}
 	// collection.Find returns a cursor for our (empty) query
@@ -248,6 +264,22 @@ func main() {
 
 	pb.RegisterNotificationServiceServer(s, srv)
 	reflection.Register(s)
+
+	// firebase auth stuff
+
+	firebaseApp, err := firebase.NewApp(context.Background(), nil)
+	if err != nil {
+		log.Fatalf("error initializing Firebase app: %v\n", err)
+	}
+
+	firebaseClient, err := firebaseApp.Auth(context.Background())
+	if err != nil {
+		log.Fatalf("error getting Auth client: %v\n", err)
+	}
+
+	_ = firebaseClient // werks
+
+	fmt.Print("testtestest")
 
 	// MONGO STUFF
 
